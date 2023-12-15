@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_31_081440) do
+ActiveRecord::Schema.define(version: 2023_12_15_062128) do
 
   create_table "admins", id: { type: :bigint, unsigned: true }, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "user_name"
@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(version: 2023_08_31_081440) do
     t.datetime "deleted_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "status", default: 0
     t.index ["admin_id"], name: "index_posts_on_admin_id"
   end
 
