@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_15_062128) do
+ActiveRecord::Schema.define(version: 2023_12_26_021620) do
 
   create_table "admins", id: { type: :bigint, unsigned: true }, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "user_name"
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 2023_12_15_062128) do
 
   create_table "posts", id: { type: :bigint, unsigned: true }, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title"
-    t.text "content"
+    t.text "content", size: :long
     t.integer "category", default: 0
     t.bigint "admin_id", unsigned: true
     t.datetime "deleted_at"

@@ -29,6 +29,10 @@ class Api::Admin::PostsController < Api::Admin::BaseController
     render json: {message: "Delete post ok!"}
   end
 
+  def categories
+    render json: Post.categories
+  end
+
   private
 
   def post_params
