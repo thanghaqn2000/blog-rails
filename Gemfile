@@ -16,6 +16,8 @@ gem "devise"
 gem "devise-jwt"
 gem "pry"
 gem "rack-cors"
+gem "representable"
+gem "multi_json"
 gem "bootsnap", ">= 1.4.4", require: false
 
 group :development, :test do
