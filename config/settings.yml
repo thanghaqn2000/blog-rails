@@ -1,0 +1,5 @@
+token:
+  access:
+    expires_in_hours: 1
+  refresh:
+    expires_in_weeks: 3
