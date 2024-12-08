@@ -5,16 +5,12 @@ class Api::Admin::SessionsController < Devise::SessionsController
   def create
     response.headers['Cache-Control'] = 'no-cache, no-store'
     admin = warden.authenticate!(auth_options)
-    render json: Api::GenerateAccessTokenService.new(admin).perform
+    refresh_token = Api::GenerateRefreshTokenService.new(admin).perform
+    args = {resource: admin, refresh_token: refresh_token}
+    render json: Api::GenerateAccessTokenService.new(args).perform
   end
 
   def destroy
     sign_out(resource_name)
-  end
-
-  private
-
-  def auth_token
-    JWT.encode({ user_id: current_admin.id }, Rails.application.secrets.secret_key_base)
   end
 end
