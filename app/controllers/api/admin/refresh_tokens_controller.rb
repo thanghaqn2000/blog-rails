@@ -12,10 +12,14 @@ class Api::Admin::RefreshTokensController < Api::Admin::BaseController
 
   def authorize_refresh_request!
     refresh_token = params[:refresh_token]
-    @admin = Admin.find_by(refresh_token: refresh_token)
+    raise Api::ParamInvalid, "Invalid refresh token" if refresh_token.blank?
+
     decoded_token = JsonWebToken.decode(refresh_token)
-    render json: { error: 'Invalid refresh token' }, status: :unauthorized if @admin.blank? || decoded_token[:type] != 'refresh'
+    raise Api::ParamInvalid, "Invalid refresh token" if decoded_token[:type] != 'refresh'
+
+    @admin = Admin.find_by(refresh_token: refresh_token)
+    raise Api::NotFound, "Not found refresh token" if @admin.blank?
   rescue JWT::DecodeError
-    render json: { error: 'Invalid token' }, status: :unauthorized
+    raise Api::ParamInvalid, "Invalid refresh token"
   end
 end
