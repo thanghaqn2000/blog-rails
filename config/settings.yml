@@ -3,3 +3,7 @@ token:
     expires_in_hours: 1
   refresh:
     expires_in_weeks: 3
+authorization:
+  header: JWTAuthorization
+  grant_refresh_token_type: refresh_token
+  access_token_type: Bearer

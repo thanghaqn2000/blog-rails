@@ -10,6 +10,6 @@ class Devise::CustomFailure < Devise::FailureApp
   def json_error_response
     self.status = 401
     self.content_type = "application/json"
-    self.response_body = {success: false, errors: [i18n_message]}.to_json
+    self.response_body = {success: false, errors: "Invalid email or password", status: 401}.to_json
   end
 end

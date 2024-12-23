@@ -1,6 +1,6 @@
 class Api::Admin::SessionsController < Devise::SessionsController
   respond_to :json
-  skip_before_action :verify_authenticity_token
+  skip_before_action :authorize_request!
 
   def create
     response.headers['Cache-Control'] = 'no-cache, no-store'

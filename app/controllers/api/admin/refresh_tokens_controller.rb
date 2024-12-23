@@ -1,6 +1,7 @@
 class Api::Admin::RefreshTokensController < Api::Admin::BaseController
-  before_action :authorize_refresh_request!
+  skip_before_action :authorize_request!
   skip_before_action :verify_authenticity_token
+  before_action :authorize_refresh_request!
 
   def create
     refresh_token = Api::GenerateRefreshTokenService.new(@admin).perform

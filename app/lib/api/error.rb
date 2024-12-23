@@ -37,4 +37,10 @@ module Api
       super(message, 403)
     end
   end
+  
+  class Unauthorized < Error
+    def initialize(message = 'Unauthorized')
+      super(message, 401)
+    end
+  end
 end

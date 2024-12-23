@@ -19,4 +19,7 @@ Devise.setup do |config|
   config.sign_out_via = :delete
   config.responder.error_status = :unprocessable_entity
   config.responder.redirect_status = :see_other
+  config.warden do |manager|
+    manager.failure_app = ::Devise::CustomFailure
+  end
 end

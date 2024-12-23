@@ -18,7 +18,8 @@ class Api::GenerateAccessTokenService
     {
       resource_type: resource_type,
       id: resource.id,
-      type: 'access'
+      type: 'access',
+      expired_at: @expired_at.to_i
     }
   end
 
