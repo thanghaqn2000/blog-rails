@@ -1,6 +1,4 @@
 class Api::Admin::PostsController < Api::Admin::BaseController
-  skip_before_action :verify_authenticity_token
-
   def index
     blogs = Post.all
 
