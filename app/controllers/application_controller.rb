@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include Pagination
+
   skip_forgery_protection
   before_action :authorize_request!
   rescue_from Api::Error, with: :handle_api_error

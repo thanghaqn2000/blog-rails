@@ -1,8 +1,8 @@
 class Api::Admin::PostsController < Api::Admin::BaseController
   def index
-    blogs = Post.all
+    posts = Post.all
 
-    render json: blogs, except: %i(updated_at deleted_at)
+    render_paginated(posts, serializer: PostsRepresenter)
   end
 
   def create

@@ -7,3 +7,5 @@ authorization:
   header: JWTAuthorization
   grant_refresh_token_type: refresh_token
   access_token_type: Bearer
+pagination:
+  max_per_page: 10
