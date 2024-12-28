@@ -2,7 +2,7 @@ class Api::V1::PostsController < Api::V1::BaseController
   def index
     posts = Post.publish
 
-    render json: PostsRepresenter.new(posts).to_json
+    render_paginated(posts, serializer: PostsRepresenter)
   end
 
   def show
