@@ -1,6 +1,5 @@
 class Api::Admin::RefreshTokensController < Api::Admin::BaseController
   skip_before_action :authorize_request!
-  skip_before_action :verify_authenticity_token
   before_action :authorize_refresh_request!
 
   def create

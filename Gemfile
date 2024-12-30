@@ -19,6 +19,7 @@ gem "rack-cors"
 gem "representable"
 gem "multi_json"
 gem "config"
+gem "ransack"
 gem "kaminari", '~> 1.2'
 gem "bootsnap", ">= 1.4.4", require: false
 
