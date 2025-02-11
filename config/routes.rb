@@ -16,6 +16,11 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :posts, only: %i[index show]
+      resources :users, only: %i[create] do
+        collection do
+          get :check_info_uniqueness
+        end
+      end
     end
   end
 end
