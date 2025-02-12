@@ -22,4 +22,9 @@ class ApplicationController < ActionController::Base
     error_hash = exception.to_hash
     render json: error_hash, status: error_hash[:status]
   end
+
+  def response_api body, status, code: nil
+    code ||=  Rack::Utils::SYMBOL_TO_STATUS_CODE[status]
+    render json: { data: body, code: code }, status: status
+  end
 end
