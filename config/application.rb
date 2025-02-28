@@ -10,6 +10,9 @@ module Blog
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
+    # Dir[Rails.root.join("lib/middleware/*.rb")].each { |file| require file }
+    # config.middleware.use FilterSensitiveData
+
 
     # Configuration for the application, engines, and railties goes here.
     #

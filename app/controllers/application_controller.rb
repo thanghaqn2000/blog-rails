@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
 
   skip_forgery_protection
   before_action :authorize_request!
+  before_action :configure_permitted_parameters, if: :devise_controller?
   rescue_from Api::Error, with: :handle_api_error
 
   private
@@ -26,5 +27,17 @@ class ApplicationController < ActionController::Base
   def response_api body, status, code: nil
     code ||=  Rack::Utils::SYMBOL_TO_STATUS_CODE[status]
     render json: { data: body, code: code }, status: status
+  end
+
+  def configure_permitted_parameters
+    if resource_class == Admin
+      devise_parameter_sanitizer.permit(:sign_in, keys: [:email])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:email])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:email])
+    elsif resource_class == User
+      devise_parameter_sanitizer.permit(:sign_in, keys: [:phone_number])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:phone_number])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:phone_number])
+    end
   end
 end
