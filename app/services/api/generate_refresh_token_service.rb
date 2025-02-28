@@ -27,6 +27,6 @@ class Api::GenerateRefreshTokenService
       payload,
       expires_at
     )
-    resource.update! refresh_token: raw_token
+    resource.update_columns(refresh_token: raw_token)
   end
 end
