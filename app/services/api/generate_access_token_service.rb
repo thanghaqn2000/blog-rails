@@ -6,12 +6,13 @@ class Api::GenerateAccessTokenService
   end
 
   def perform
-    @expired_at = Time.now + (Settings.token.access.expires_in_hours.to_i).hour
+    @expired_at = Time.now + Settings.token.access.expires_in_hours.to_i.hour
     @access_token = generate_access_token
     response
   end
 
   private
+
   attr_reader :resource, :resource_type
 
   def payload
@@ -34,10 +35,9 @@ class Api::GenerateAccessTokenService
     {
       token_info: {
         access_token: @access_token,
-        refresh_token: @refresh_token,
         expired_at: @expired_at
       },
-      "#{resource_type.downcase}": resource
+      "#{resource_type.downcase}": UserSerializer.new(resource)
     }
   end
 end

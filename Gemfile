@@ -23,6 +23,9 @@ gem "ransack"
 gem "kaminari", '~> 1.2'
 gem "bootsnap", ">= 1.4.4", require: false
 
+# Serializer
+gem 'active_model_serializers', '~> 0.10.13'
+
 group :development, :test do
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
 end

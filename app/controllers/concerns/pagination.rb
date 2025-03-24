@@ -15,7 +15,10 @@ module Pagination
         previous_page_url: paginated.prev_page.present? ? url_for(page: paginated.prev_page) : nil
       }
       
-      response = { data: serializer ? serializer.new(paginated) : paginated, meta: meta }
+      response = { 
+        data: ActiveModelSerializers::SerializableResource.new(paginated, each_serializer: serializer).as_json,
+        meta: meta 
+      }
       render json: response
     end
   end
