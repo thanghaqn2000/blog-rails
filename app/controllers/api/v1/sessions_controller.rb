@@ -7,6 +7,11 @@ class Api::V1::SessionsController < Devise::SessionsController
     response.headers['Cache-Control'] = 'no-cache, no-store'
     user = warden.authenticate!(auth_options)
 
+    if params[:admin_login] && !user.admin?
+      render json: { error: 'Unauthorized access' }, status: :unauthorized
+      return
+    end
+
     refresh_token = Api::GenerateRefreshTokenService.new(user).perform
     cookies.signed[:refresh_token] = {
       value: refresh_token,
@@ -18,6 +23,7 @@ class Api::V1::SessionsController < Devise::SessionsController
 
   def destroy
     current_user = User.find_by(refresh_token: cookies.signed[:refresh_token])
+    
     if current_user
       begin
         current_user.update!(refresh_token: nil)
@@ -25,9 +31,14 @@ class Api::V1::SessionsController < Devise::SessionsController
         return render json: { error: "Failed to logout: #{e.message}" }, status: :unprocessable_entity
       end
     end
-  
-    cookies.delete(:refresh_token)
-  
-    render json: { message: "Logged out successfully" }, status: :ok
+
+    # Xóa cookie refresh_token
+    cookies.delete(:refresh_token, domain: :all, path: '/')
+    
+    # Trả về response để client xóa access token
+    render json: { 
+      message: "Logged out successfully",
+      clear_access_token: true # Flag để client biết cần xóa access token
+    }, status: :ok
   end
 end

@@ -2,15 +2,13 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   def index
     posts = Post.ransack(title_cont: params[:title]).result
 
-    render_paginated(posts, serializer: PostsRepresenter)
+    render_paginated(posts, serializer: PostSerializer)
   end
 
   def create
     post = Post.new(post_params)
 
-    if params[:image].present?
-      post.image.attach(params[:image])
-    end
+    post.image.attach(params[:image]) if params[:image].present?
 
     if post.save
       render json: { message: "Post created successfully" }, status: :created
@@ -20,23 +18,21 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   end
 
   def update
-    if params[:image].present?
-      post.image.attach(params[:image])
-    end
+    post.image.attach(params[:image]) if params[:image].present?
 
     post.update! post_params
 
-    render json: post, except: %i(created_at updated_at deleted_at)
+    render json: post, serializer: PostSerializer
   end
 
   def show
-    render json: PostRepresenter.new(post).to_json
+    render json: post, serializer: PostSerializer
   end
 
   def destroy
     post.destroy!
 
-    render json: {message: "Delete post ok!"}
+    render json: { message: "Delete post ok!" }
   end
 
   def categories

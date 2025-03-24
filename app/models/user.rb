@@ -3,15 +3,17 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable, authentication_keys: [:phone_number]
 
+  enum role: { user: 0, admin: 1 }
+
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
     if phone_number = conditions.delete(:phone_number)
-      where(conditions).where(["phone_number = :value", { value: phone_number }]).first
+      where(conditions).where(['phone_number = :value', { value: phone_number }]).first
     else
       where(conditions).first
     end
   end
-  
+
   acts_as_paranoid
 
   validates :email, presence: { message: "Email là bắt buộc" },
@@ -34,5 +36,9 @@ class User < ApplicationRecord
 
   def will_save_change_to_email?
     false
+  end
+
+  def admin?
+    role == "admin"
   end
 end

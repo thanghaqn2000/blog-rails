@@ -30,14 +30,8 @@ class ApplicationController < ActionController::Base
   end
 
   def configure_permitted_parameters
-    if resource_class == Admin
-      devise_parameter_sanitizer.permit(:sign_in, keys: [:email])
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:email])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:email])
-    elsif resource_class == User
-      devise_parameter_sanitizer.permit(:sign_in, keys: [:phone_number])
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:phone_number])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:phone_number])
-    end
+    devise_parameter_sanitizer.permit(:sign_in, keys: [:phone_number])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:phone_number])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:phone_number])
   end
 end
