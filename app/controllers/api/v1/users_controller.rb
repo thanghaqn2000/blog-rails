@@ -27,7 +27,7 @@ class Api::V1::UsersController < Api::V1::BaseController
           end
 
     if User.exists?(hash_info[:name_attr] => hash_info[:value])
-      response_api({errors: "#{hash_info[:title]} này đã được sử dụng"}, :bad_request, code: 410)
+      response_api({errors: "#{hash_info[:title]} này đã được sử dụng", field: hash_info[:name_attr]}, :bad_request, code: 410)
     else
       response_api({message: "#{hash_info[:title]} chưa được sử dụng"}, :ok)
     end
