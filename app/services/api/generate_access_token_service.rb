@@ -2,6 +2,7 @@ class Api::GenerateAccessTokenService
   def initialize args
     @resource = args[:resource]
     @refresh_token = args[:refresh_token]
+    @is_new_member = args[:is_new_member]
     @resource_type = resource.class.name
   end
 
