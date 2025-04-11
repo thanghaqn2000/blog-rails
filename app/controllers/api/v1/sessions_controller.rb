@@ -26,7 +26,7 @@ class Api::V1::SessionsController < Devise::SessionsController
     
     if current_user
       begin
-        current_user.update!(refresh_token: nil)
+        current_user.save!(refresh_token: nil, validate: false)
       rescue ActiveRecord::RecordInvalid => e
         return render json: { error: "Failed to logout: #{e.message}" }, status: :unprocessable_entity
       end

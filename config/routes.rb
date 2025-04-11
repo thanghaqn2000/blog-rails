@@ -14,9 +14,10 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :posts, only: %i[index show]
       resources :refresh_tokens, only: :create
-      resources :users, only: %i[create] do
+      resources :users, only: %i[create update] do
         collection do
           get :check_info_uniqueness
+          post :verify_social_token
         end
       end
       devise_scope :user do
