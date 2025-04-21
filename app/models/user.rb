@@ -5,6 +5,8 @@ class User < ApplicationRecord
 
   enum role: { user: 0, admin: 1 }
 
+  has_many :posts
+
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
     if phone_number = conditions.delete(:phone_number)

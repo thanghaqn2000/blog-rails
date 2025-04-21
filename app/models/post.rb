@@ -5,7 +5,7 @@ class Post < ApplicationRecord
   enum category: { news: 0, finance: 1 }
   enum status: { pending: 0, publish: 1 }
 
-  belongs_to :admin, optional: true
+  belongs_to :user, optional: true
   has_one_attached :image
 
   def image_url
