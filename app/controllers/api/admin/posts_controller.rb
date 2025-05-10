@@ -6,9 +6,8 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   end
 
   def create
-    post = Post.new(post_params)
-
-    post.image.attach(params[:image]) if params[:image].present?
+    post = @current_admin.posts.build(post_params)
+    post.image.attach(params[:image]) if params[:image]
 
     if post.save
       render json: { message: "Post created successfully" }, status: :created

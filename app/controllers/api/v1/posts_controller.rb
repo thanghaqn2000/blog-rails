@@ -1,17 +1,21 @@
 class Api::V1::PostsController < Api::V1::BaseController
   def index
-    posts = Post.publish.ransack(title_cont: params[:title]).result
+    posts = if current_user && current_user.admin?
+      Post
+    else
+      Post.publish
+    end.ransack(title_cont: params[:title], with_category_name: params[:category]).result
 
     render_paginated(posts, serializer: PostSerializer)
   end
 
   def show
-    render json: post, serializer: PostSerializer
+    render json: { data: PostSerializer.new(post).as_json }
   end
 
   private
 
   def post
-    @post ||= Post.publish.find params[:id]
+    @post ||= Post.find params[:id]
   end
 end
