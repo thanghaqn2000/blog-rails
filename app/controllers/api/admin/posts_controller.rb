@@ -1,4 +1,6 @@
 class Api::Admin::PostsController < Api::Admin::BaseController
+  before_action :set_post, only: [:show, :update, :destroy]
+
   def index
     posts = Post.ransack(title_cont: params[:title]).result
 
@@ -6,9 +8,8 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   end
 
   def create
-    post = Post.new(post_params)
-
-    post.image.attach(params[:image]) if params[:image].present?
+    post = @current_admin.posts.build(post_params)
+    post.image.attach(params[:image]) if params[:image]
 
     if post.save
       render json: { message: "Post created successfully" }, status: :created
@@ -18,20 +19,18 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   end
 
   def update
-    post.image.attach(params[:image]) if params[:image].present?
+    @post.image.attach(params[:image]) if params[:image].present?
+    @post.update! post_params
 
-    post.update! post_params
-
-    render json: post, serializer: PostSerializer
+    render json: @post, serializer: PostSerializer
   end
 
   def show
-    render json: post, serializer: PostSerializer
+    render json: @post, serializer: PostSerializer
   end
 
   def destroy
-    post.destroy!
-
+    @post.destroy!
     render json: { message: "Delete post ok!" }
   end
 
@@ -45,7 +44,8 @@ class Api::Admin::PostsController < Api::Admin::BaseController
     params.required(:post).permit :title, :content, :category, :status, :image
   end
 
-  def post
-    @post ||= Post.find params[:id]
+  def set_post
+    @post = Post.find_by(id: params[:id])
+    response_api({ errors: "Post not found" }, :not_found) unless @post
   end
 end
