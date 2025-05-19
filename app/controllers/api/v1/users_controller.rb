@@ -45,7 +45,6 @@ class Api::V1::UsersController < Api::V1::BaseController
     response_api({ errors: "Email hoặc số điện thoại không được để trống" }, :bad_request)
   end
 
-
   def verify_social_token
     access_token = params[:access_token]
     raise Api::ParamInvalid, "Access token không được để trống" if access_token.blank?

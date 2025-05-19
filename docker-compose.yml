@@ -17,15 +17,16 @@ services:
       timeout: 10s
       retries: 10
 
-  web:
+  backend:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        RAILS_ENV: ${RAILS_ENV}
     platform: linux/x86_64
     command: bundle exec rails s -p 3000 -b "0.0.0.0"
-    env_file: .env
-    volumes:
-      - .:/myapp
+    env_file: .env.prd
+    volumes: []
     ports:
       - "3000:3000"
     depends_on:

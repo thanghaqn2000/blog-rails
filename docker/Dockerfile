@@ -15,8 +15,9 @@ RUN gem install bundler:2.3.21 && bundle install
 
 COPY . .
 
+ARG RAILS_ENV
+ENV RAILS_ENV=$RAILS_ENV
+
 COPY docker/entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
-
-CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails server -b 0.0.0.0"]
