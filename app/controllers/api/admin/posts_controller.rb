@@ -41,7 +41,7 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   private
 
   def post_params
-    params.required(:post).permit :title, :content, :category, :status, :image
+    params.required(:post).permit :title, :content, :category, :status, :image, :description
   end
 
   def set_post
