@@ -1,5 +1,5 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :name, :email, :phone_number, :is_admin, :require_phone_number
+  attributes :id, :name, :email, :phone_number, :is_admin, :require_phone_number, :avatar_url
 
   def is_admin
     object.admin?
