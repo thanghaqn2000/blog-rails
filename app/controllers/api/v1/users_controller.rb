@@ -46,12 +46,12 @@ class Api::V1::UsersController < Api::V1::BaseController
   end
 
   def verify_social_token
-    access_token = params[:access_token]
-    raise Api::ParamInvalid, "Access token không được để trống" if access_token.blank?
+    user_info = params[:user_info]
+    raise Api::ParamInvalid, "Access token không được để trống" if user_info[:id_token].blank?
 
     begin
-      decoded_data = decode_social_token(access_token)
-      user = find_or_create_user(decoded_data)
+      decoded_data = decode_social_token(user_info[:id_token])
+      user = find_or_create_user(decoded_data[:email], user_info)
       generate_auth_response(user)
     rescue JWT::ExpiredSignature
       response_api({ errors: "Token đã hết hạn" }, :unauthorized)
@@ -80,22 +80,21 @@ class Api::V1::UsersController < Api::V1::BaseController
     decoded_token
   end
 
-  def find_or_create_user(decoded_data)
-    user_data = decoded_data[:user_metadata].transform_keys(&:to_sym)
-
+  def find_or_create_user(email, user_info)
     begin
       User.transaction(requires_new: true) do
-        user = User.find_by(email: user_data[:email])
+        user = User.find_by(email: email)
         return user if user.present?
 
         User.new(
-        email: user_data[:email],
-        name: user_data[:full_name],
+        email: email,
+        name: user_info[:name],
+        avatar_url: user_info[:photoURL],
         password: ENV['DEFAULT_PASSWORD']
       ).tap { |u| u.save!(validate: false) }
     end
     rescue ActiveRecord::RecordNotUnique
-      User.find_by(email: user_data[:email])
+      User.find_by(email: email)
     end
   end
 
