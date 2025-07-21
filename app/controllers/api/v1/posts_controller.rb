@@ -1,5 +1,6 @@
 class Api::V1::PostsController < Api::V1::BaseController
   before_action :set_post, only: [:show]
+
   def index
     posts = post_scope.ransack(title_cont: params[:title], with_category_name: params[:category]).result
 
@@ -13,6 +14,7 @@ class Api::V1::PostsController < Api::V1::BaseController
   private
   def set_post
     @post = post_scope.find_by(id: params[:id])
+
     response_api({ errors: "Post not found" }, :not_found) unless @post
   end
 
