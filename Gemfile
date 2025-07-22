@@ -21,6 +21,7 @@ gem "multi_json"
 gem "config"
 gem "ransack"
 gem "kaminari", '~> 1.2'
+gem "logtail-rails"
 gem "bootsnap", ">= 1.4.4", require: false
 
 # Serializer
