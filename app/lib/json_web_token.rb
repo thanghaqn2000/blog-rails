@@ -1,5 +1,5 @@
 class JsonWebToken
-  HMAC_SECRET = Rails.application.secrets.secret_key_base
+  HMAC_SECRET = Rails.application.credentials.secret_key_base
 
   class << self
     def encode payload, exp

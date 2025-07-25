@@ -10,14 +10,14 @@ class Api::V1::RefreshTokensController < Api::V1::BaseController
 
   def authorize_refresh_request!
     refresh_token = cookies.signed[:refresh_token]
-    raise Api::ParamInvalid, "Invalid refresh token" if refresh_token.blank?
+    raise Api::ParamInvalid, "Refresh token is required" if refresh_token.blank?
 
     decoded_token = JsonWebToken.decode(refresh_token)
-    raise Api::ParamInvalid, "Invalid refresh token" if decoded_token[:type] != 'refresh'
+    raise Api::ParamInvalid, "Invalid refresh token decoded" if decoded_token[:type] != 'refresh'
     @user = User.find_by(refresh_token: refresh_token)
 
     raise Api::NotFound, "Not found refresh token" if @user.blank?
   rescue JWT::DecodeError
-    raise Api::ParamInvalid, "Invalid refresh token"
+    raise Api::ParamInvalid, "Invalid refresh token JWT"
   end
 end
