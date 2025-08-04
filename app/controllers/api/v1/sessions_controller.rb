@@ -22,23 +22,27 @@ class Api::V1::SessionsController < Devise::SessionsController
   end
 
   def destroy
-    current_user = User.find_by(refresh_token: cookies.signed[:refresh_token])
+    # Tìm và xóa refresh_token của user
+    User.where(refresh_token: cookies.signed[:refresh_token])
+        .update_all(refresh_token: nil)
     
-    if current_user
-      begin
-        current_user.save!(refresh_token: nil, validate: false)
-      rescue ActiveRecord::RecordInvalid => e
-        return render json: { error: "Failed to logout: #{e.message}" }, status: :unprocessable_entity
-      end
-    end
-
-    # Xóa cookie refresh_token
-    cookies.delete(:refresh_token, domain: :all, path: '/')
+    # Xóa cookie
+    cookies.delete(:refresh_token, **cookie_delete_options)
     
-    # Trả về response để client xóa access token
     render json: { 
       message: "Logged out successfully",
-      clear_access_token: true # Flag để client biết cần xóa access token
+      clear_access_token: true
     }, status: :ok
+  end
+
+  private
+
+  def cookie_delete_options
+    {
+      domain: :all,
+      path: '/',
+      secure: Rails.env.production? || ENV['FORCE_HTTPS'] == 'true',
+      same_site: (Rails.env.production? || ENV['FORCE_HTTPS'] == 'true') ? :none : :lax
+    }
   end
 end
