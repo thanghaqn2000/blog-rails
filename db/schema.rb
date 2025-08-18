@@ -10,14 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_31_084922) do
-
+ActiveRecord::Schema[7.1].define(version: 2025_08_16_041202) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -30,7 +29,7 @@ ActiveRecord::Schema.define(version: 2025_05_31_084922) do
     t.string "service_name", null: false
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
@@ -45,12 +44,13 @@ ActiveRecord::Schema.define(version: 2025_05_31_084922) do
     t.text "content", size: :long
     t.text "description"
     t.integer "category", default: 0
-    t.datetime "deleted_at"
+    t.datetime "deleted_at", precision: nil
     t.integer "status", default: 0
     t.text "image_url"
     t.bigint "user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "image_key"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -60,14 +60,14 @@ ActiveRecord::Schema.define(version: 2025_05_31_084922) do
     t.date "date_of_birth"
     t.string "phone_number"
     t.integer "role", default: 0
-    t.datetime "deleted_at"
+    t.datetime "deleted_at", precision: nil
     t.string "encrypted_password", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.string "refresh_token"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "avatar_url"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["refresh_token"], name: "index_users_on_refresh_token", unique: true

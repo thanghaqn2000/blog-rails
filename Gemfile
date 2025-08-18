@@ -23,6 +23,7 @@ gem "ransack"
 gem "kaminari", '~> 1.2'
 gem "logtail-rails"
 gem "bootsnap", ">= 1.4.4", require: false
+gem "aws-sdk-s3", require: false
 
 # Serializer
 gem 'active_model_serializers', '~> 0.10.13'
