@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   # devise_for :admins, skip: :all
   devise_for :users, skip: :all
+  
+  # Mount Sidekiq Web UI (protect this in production)
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
   namespace :api do
     namespace :admin do
       resources :refresh_tokens, only: :create

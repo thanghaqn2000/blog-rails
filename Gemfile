@@ -25,6 +25,10 @@ gem "logtail-rails"
 gem "bootsnap", ">= 1.4.4", require: false
 gem "aws-sdk-s3", require: false
 
+# Background Jobs
+gem "sidekiq"
+gem "redis", "~> 5.0"
+
 # Serializer
 gem 'active_model_serializers', '~> 0.10.13'
 

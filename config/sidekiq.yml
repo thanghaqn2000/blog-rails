@@ -1,0 +1,54 @@
+# Sidekiq configuration file
+# For more options, see: https://github.com/mperham/sidekiq/wiki/Advanced-Options
+
+# Global settings
+:concurrency: 5
+:timeout: 25
+:verbose: false
+
+# Redis connection
+:redis:
+  :host: <%= ENV.fetch('REDIS_HOST', 'localhost') %>
+  :port: <%= ENV.fetch('REDIS_PORT', 6379) %>
+  :db: <%= ENV.fetch('REDIS_DB', 0) %>
+  :password: <%= ENV.fetch('REDIS_PASSWORD', nil) %>
+
+# Queue configuration
+:queues:
+  - default
+  - email
+  - critical
+  - low
+
+# Retry configuration
+:retry: 3
+
+# Dead job retention
+:dead_timeout_in_seconds: 180
+
+# Scheduler (if using sidekiq-scheduler)
+# :scheduler:
+#   :enabled: true
+
+# Development specific settings
+development:
+  :concurrency: 2
+  :queues:
+    - default
+    - email
+
+# Production specific settings  
+production:
+  :concurrency: 10
+  :timeout: 30
+  :queues:
+    - critical
+    - default
+    - email
+    - low
+
+# Test specific settings
+test:
+  :concurrency: 1
+  :queues:
+    - default

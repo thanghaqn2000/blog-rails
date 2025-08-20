@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+# This script starts Sidekiq for background job processing
+# Usage: bin/sidekiq [options]
+
+require_relative '../config/environment'
+
+# Start Sidekiq with configuration
+exec 'bundle exec sidekiq -C config/sidekiq.yml'
