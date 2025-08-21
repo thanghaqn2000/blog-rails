@@ -14,6 +14,11 @@ Rails.application.routes.draw do
           post :presign
         end
       end
+      resources :charts, only: :index do
+        collection do
+          post :upload_data
+        end
+      end
     end
 
     namespace :v1 do
