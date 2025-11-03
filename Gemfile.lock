@@ -173,6 +173,9 @@ GEM
       logger
     faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
+    fcm (1.0.8)
+      faraday (>= 1.0.0, < 3.0)
+      googleauth (~> 1)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -471,6 +474,7 @@ DEPENDENCIES
   dotenv-rails
   factory_bot_rails
   faker
+  fcm (~> 1.0)
   googleauth (~> 1.14)
   jbuilder (~> 2.7)
   kaminari (~> 1.2)

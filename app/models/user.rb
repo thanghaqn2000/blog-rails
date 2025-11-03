@@ -6,6 +6,8 @@ class User < ApplicationRecord
   enum role: { user: 0, admin: 1 }
 
   has_many :posts
+  has_many :notifications
+  has_many :device_tokens, dependent: :destroy
 
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
@@ -42,5 +44,25 @@ class User < ApplicationRecord
 
   def admin?
     role == "admin"
+  end
+
+  # Lấy tất cả active device tokens
+  def active_device_tokens
+    device_tokens.active
+  end
+
+  # Lấy tất cả active FCM tokens
+  def active_fcm_tokens
+    active_device_tokens.pluck(:token)
+  end
+
+  # Đăng ký device token mới
+  def register_device_token(token:, device_id:, platform:)
+    DeviceToken.register_token(
+      user: self,
+      token: token,
+      device_id: device_id,
+      platform: platform
+    )
   end
 end
