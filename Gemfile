@@ -20,7 +20,7 @@ gem "representable"
 gem "multi_json"
 gem "config"
 gem "ransack"
-gem "kaminari", '~> 1.2'
+gem "kaminari", "~> 1.2"
 gem "logtail-rails"
 gem "bootsnap", ">= 1.4.4", require: false
 gem "aws-sdk-s3", require: false
@@ -30,7 +30,7 @@ gem "sidekiq"
 gem "redis", "~> 5.0"
 
 # Serializer
-gem 'active_model_serializers', '~> 0.10.13'
+gem "active_model_serializers", "~> 0.10.13"
 
 group :development, :test do
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
@@ -52,6 +52,7 @@ group :test do
 end
 
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-gem 'bcrypt', '~> 3.1.7'
+gem "bcrypt", "~> 3.1.7"
 
 gem "googleauth", "~> 1.14"
+gem "fcm", "~> 1.0"

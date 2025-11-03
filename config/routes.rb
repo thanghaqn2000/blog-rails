@@ -19,6 +19,11 @@ Rails.application.routes.draw do
           post :upload_data
         end
       end
+      resources :notifications, only: %i[index create update destroy] do
+        member do
+          post :send_notification
+        end
+      end
     end
 
     namespace :v1 do

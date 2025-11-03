@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins ENV.fetch('FRONTEND_URL', 'http://localhost:8080') # Frontend domain
+    origins ENV.fetch('FRONTEND_URL', 'http://localhost:8081') # Frontend domain
     resource '*',
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],

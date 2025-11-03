@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_31_090345) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -47,6 +47,34 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "device_tokens", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "device_id", null: false
+    t.string "platform", null: false
+    t.bigint "user_id", null: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_device_tokens_on_token"
+    t.index ["user_id", "device_id"], name: "index_device_tokens_on_user_id_and_device_id", unique: true
+    t.index ["user_id"], name: "index_device_tokens_on_user_id"
+  end
+
+  create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title"
+    t.string "content"
+    t.string "image_url"
+    t.string "link"
+    t.integer "type", default: 0
+    t.integer "status", default: 0
+    t.datetime "scheduled_at"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "sent_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
   create_table "posts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title"
     t.text "content", size: :long
@@ -77,11 +105,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "avatar_url"
+    t.string "fcm_token"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["refresh_token"], name: "index_users_on_refresh_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "device_tokens", "users"
+  add_foreign_key "notifications", "users"
   add_foreign_key "posts", "users"
 end
