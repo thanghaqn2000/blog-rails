@@ -29,6 +29,9 @@ gem "aws-sdk-s3", require: false
 gem "sidekiq"
 gem "redis", "~> 5.0"
 
+# OpenAI
+gem "ruby-openai"
+
 # Serializer
 gem 'active_model_serializers', '~> 0.10.13'
 

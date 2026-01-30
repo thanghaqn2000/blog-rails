@@ -6,6 +6,10 @@ class User < ApplicationRecord
   enum role: { user: 0, admin: 1 }
 
   has_many :posts
+  has_many :conversations, dependent: :destroy
+  has_one :user_quota, dependent: :destroy
+
+  after_create :create_default_quota
 
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
@@ -42,5 +46,12 @@ class User < ApplicationRecord
 
   def admin?
     role == "admin"
+  end
+
+  private
+
+  def create_default_quota
+    # Tạo quota với daily_limit mặc định là 5 messages (tổng cộng)
+    create_user_quota(daily_limit: 5, used_today: 0) unless user_quota.present?
   end
 end
