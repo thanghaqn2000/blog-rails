@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_29_145248) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -47,6 +47,59 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "conversations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.string "openai_thread_id"
+    t.integer "message_count", default: 0
+    t.string "status", default: "active"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["openai_thread_id"], name: "index_conversations_on_openai_thread_id"
+    t.index ["status"], name: "index_conversations_on_status"
+    t.index ["user_id"], name: "index_conversations_on_user_id"
+  end
+
+  create_table "device_tokens", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "device_id", null: false
+    t.string "platform", null: false
+    t.bigint "user_id", null: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_device_tokens_on_token"
+    t.index ["user_id", "device_id"], name: "index_device_tokens_on_user_id_and_device_id", unique: true
+    t.index ["user_id"], name: "index_device_tokens_on_user_id"
+  end
+
+  create_table "messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "conversation_id", null: false
+    t.string "role", null: false
+    t.text "content"
+    t.string "openai_message_id"
+    t.integer "token_usage", default: 0
+    t.datetime "created_at", null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["openai_message_id"], name: "index_messages_on_openai_message_id"
+    t.index ["role"], name: "index_messages_on_role"
+  end
+
+  create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title"
+    t.string "content"
+    t.string "image_url"
+    t.string "link"
+    t.integer "type", default: 0
+    t.integer "status", default: 0
+    t.datetime "scheduled_at"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "sent_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
   create_table "posts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title"
     t.text "content", size: :long
@@ -60,6 +113,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
     t.datetime "updated_at", null: false
     t.string "image_key"
     t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
+  create_table "user_quotas", primary_key: "user_id", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "daily_limit", default: 0, null: false
+    t.integer "used_today", default: 0, null: false
+    t.datetime "reset_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reset_at"], name: "index_user_quotas_on_reset_at"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -77,11 +139,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_20_093044) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "avatar_url"
+    t.string "fcm_token"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["refresh_token"], name: "index_users_on_refresh_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "conversations", "users"
+  add_foreign_key "device_tokens", "users"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "notifications", "users"
   add_foreign_key "posts", "users"
+  add_foreign_key "user_quotas", "users"
 end
