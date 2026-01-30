@@ -34,6 +34,18 @@ Rails.application.routes.draw do
         post "login", to: "sessions#create"
         delete "logout", to: "sessions#destroy"
       end
+
+      # Chatbot routes
+      resources :conversations, only: %i[index show create update destroy] do
+        member do
+          patch :archive
+          delete :delete_conversation
+        end
+        resources :messages, only: %i[index create]
+      end
+      
+      # Quota check
+      get 'quota', to: 'user_quotas#show'
     end
   end
 end
