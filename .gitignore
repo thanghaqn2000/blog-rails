@@ -107,3 +107,6 @@ config/settings.local.yml
 config/settings/*.local.yml
 config/environments/*.local.yml
 config/credentials.yml.enc.bak
+
+#ignor testcase
+CHATBOT_API_TEST_CASES.md

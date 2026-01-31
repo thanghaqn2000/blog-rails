@@ -41,7 +41,11 @@ Rails.application.routes.draw do
           patch :archive
           delete :delete_conversation
         end
-        resources :messages, only: %i[index create]
+        resources :messages, only: %i[index create] do
+          collection do
+            post :stream  # SSE streaming endpoint
+          end
+        end
       end
       
       # Quota check
