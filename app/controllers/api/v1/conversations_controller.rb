@@ -29,7 +29,7 @@ class Api::V1::ConversationsController < ApplicationController
       
       # Tạo conversation trong DB
       conversation = @current_user.conversations.create!(
-        title: conversation_params[:title] || "New Conversation",
+        title: params.dig(:conversation, :title) || "New Conversation",
         openai_thread_id: thread_id,
         status: 'active'
       )

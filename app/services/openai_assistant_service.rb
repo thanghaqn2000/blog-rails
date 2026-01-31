@@ -17,7 +17,7 @@ class OpenaiAssistantService
     raise OpenAIServiceError, "Không thể tạo thread: #{e.message}"
   end
 
-  # Gửi message và nhận response
+  # Gửi message và nhận response (Non-streaming)
   def send_message(thread_id:, content:)
     # 1. Thêm message của user vào thread
     message_response = client.messages.create(
@@ -69,6 +69,82 @@ class OpenaiAssistantService
       success: false,
       error: e.message
     }
+  end
+
+  # Gửi message với streaming (SSE)
+  # Yields: { type: 'chunk', content: 'text' } hoặc { type: 'done', message_id: '...', token_usage: 123 }
+  def send_message_stream(thread_id:, content:)
+    # 1. Thêm message của user vào thread
+    message_response = client.messages.create(
+      thread_id: thread_id,
+      parameters: {
+        role: 'user',
+        content: content
+      }
+    )
+
+    user_message_id = message_response.dig('id')
+    
+    # Yield user message ID ngay
+    yield({ type: 'user_message_id', content: user_message_id })
+
+    full_content = ''
+    assistant_message_id = nil
+    token_usage = 0
+    run_id = nil
+
+    # 2. Stream response từ OpenAI với proc
+    client.runs.create(
+      thread_id: thread_id,
+      parameters: {
+        assistant_id: assistant_id,
+        tool_resources: {
+          file_search: {
+            vector_store_ids: [ENV['OPENAI_VECTOR_STORE_ID']]
+          }
+        },
+        stream: proc do |chunk, _bytesize|
+          # Handle different chunk types
+          case chunk["object"]
+          when "thread.message.delta"
+            # Text chunk từ assistant
+            text_delta = chunk.dig("delta", "content", 0, "text", "value")
+            if text_delta
+              full_content += text_delta
+              yield({ type: 'chunk', content: text_delta })
+            end
+
+          when "thread.message.completed"
+            # Message hoàn thành
+            assistant_message_id = chunk["id"]
+
+          when "thread.run.completed"
+            # Run hoàn thành - lấy token usage
+            run_id = chunk["id"]
+            token_usage = chunk.dig("usage", "total_tokens") || 0
+
+          when "thread.run.failed", "thread.run.cancelled", "thread.run.expired"
+            # Run failed
+            error_message = chunk.dig("last_error", "message") || "Run #{chunk['object'].split('.').last}"
+            raise OpenAIServiceError, error_message
+          end
+        end
+      }
+    )
+
+    # 3. Yield done event
+    yield({
+      type: 'done',
+      user_message_id: user_message_id,
+      assistant_message_id: assistant_message_id,
+      full_content: full_content,
+      token_usage: token_usage
+    })
+
+  rescue StandardError => e
+    Rails.logger.error("OpenAI streaming error: #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
+    yield({ type: 'error', error: e.message })
   end
 
   # Lấy tất cả messages trong thread
@@ -133,7 +209,7 @@ class OpenaiAssistantService
     text_contents = content_array.select { |c| c['type'] == 'text' }
     text_contents.map { |c| c.dig('text', 'value') }.join("\n")
   end
-end
+ end
 
 # Custom error class
 class OpenAIServiceError < StandardError; end
