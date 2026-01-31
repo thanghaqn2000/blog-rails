@@ -141,6 +141,9 @@ class OpenaiAssistantService
       token_usage: token_usage
     })
 
+  rescue IOError
+    # Client disconnected (sse_write raised); re-raise so controller can set client_disconnected and skip quota
+    raise
   rescue StandardError => e
     Rails.logger.error("OpenAI streaming error: #{e.message}")
     Rails.logger.error(e.backtrace.join("\n"))
