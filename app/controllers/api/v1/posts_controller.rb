@@ -4,7 +4,7 @@ class Api::V1::PostsController < Api::V1::BaseController
   def index
     posts = post_scope.ransack(title_cont: params[:title], with_category_name: params[:category]).result
 
-    render_paginated(posts, serializer: PostSerializer)
+    render_paginated(posts, serializer: PostListSerializer)
   end
 
   def show
@@ -19,6 +19,12 @@ class Api::V1::PostsController < Api::V1::BaseController
   end
 
   def post_scope
-    current_user&.admin? ? Post : Post.publish
+    if current_user&.admin?
+      Post.all
+    elsif current_user&.vip?
+      Post.publish.where(sub_type: %i[normal vip])
+    else
+      Post.publish.normal
+    end
   end
 end
