@@ -1,5 +1,5 @@
-class PostSerializer < ActiveModel::Serializer
-  attributes :id, :title, :content, :created_at, :updated_at, :image_url, :category,
+class PostListSerializer < ActiveModel::Serializer
+  attributes :id, :title, :created_at, :updated_at, :image_url, :category,
              :status, :sub_type, :date_post, :author, :description
 
   def image_url
