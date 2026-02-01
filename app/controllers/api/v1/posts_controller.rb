@@ -3,6 +3,7 @@ class Api::V1::PostsController < Api::V1::BaseController
 
   def index
     posts = post_scope.ransack(title_cont: params[:title], with_category_name: params[:category]).result
+      .order(Arel.sql("date_post IS NULL"), date_post: :desc)
 
     render_paginated(posts, serializer: PostListSerializer)
   end
