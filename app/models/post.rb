@@ -1,6 +1,6 @@
 class Post < ApplicationRecord
   acts_as_paranoid
-  enum category: { news: 0, finance: 1 }
+  enum category: { news: 0, finance: 1, report: 2 }
   enum status: { pending: 0, publish: 1 }
 
   belongs_to :user, optional: true
