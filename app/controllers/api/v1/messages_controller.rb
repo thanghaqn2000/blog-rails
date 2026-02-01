@@ -120,24 +120,28 @@ class Api::V1::MessagesController < ApplicationController
       return
     end
 
-    # Set SSE headers
+    # Set SSE headers (proxy-friendly for staging/production)
     response.headers['Content-Type'] = 'text/event-stream'
-    response.headers['Cache-Control'] = 'no-cache'
-    response.headers['X-Accel-Buffering'] = 'no' # Disable nginx buffering
+    response.headers['Cache-Control'] = 'no-cache, no-store'
+    response.headers['X-Accel-Buffering'] = 'no'   # Nginx: disable buffering
+    response.headers['Connection'] = 'keep-alive'
 
-    # 1. Lưu user message ngay (status: pending)
     user_message = nil
-    ActiveRecord::Base.connection_pool.with_connection do
-      user_message = @conversation.messages.create!(
-        role: :user,
-        content: content,
-        status: :pending
-      )
-    end
-
     client_disconnected = false
 
     begin
+      # Gửi comment ngay để proxy không buffer (phải nằm trong begin để bắt disconnect)
+      response.stream.write(": \n\n")
+
+      # 1. Lưu user message ngay (status: pending)
+      ActiveRecord::Base.connection_pool.with_connection do
+        user_message = @conversation.messages.create!(
+          role: :user,
+          content: content,
+          status: :pending
+        )
+      end
+
       # 2. Send initial event với user_message
       sse_write('user_message', MessageSerializer.new(user_message).as_json)
 
@@ -205,7 +209,7 @@ class Api::V1::MessagesController < ApplicationController
         end
       end
 
-    rescue IOError => e
+    rescue IOError, ActionController::Live::ClientDisconnected => e
       # Client disconnected (user clicked stop button)
       client_disconnected = true
       Rails.logger.warn("Client disconnected during streaming: #{e.message}")
@@ -250,7 +254,7 @@ class Api::V1::MessagesController < ApplicationController
       # Đóng SSE stream
       begin
         response.stream.close unless client_disconnected
-      rescue IOError
+      rescue IOError, ActionController::Live::ClientDisconnected
         # Stream already closed by client
       end
     end
@@ -262,7 +266,7 @@ class Api::V1::MessagesController < ApplicationController
   def sse_write(event_name, data)
     response.stream.write("event: #{event_name}\n")
     response.stream.write("data: #{data.to_json}\n\n")
-  rescue IOError => e
+  rescue IOError, ActionController::Live::ClientDisconnected => e
     # Client đã disconnect - re-raise để handle ở stream method
     raise e
   end
