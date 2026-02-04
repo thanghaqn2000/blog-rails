@@ -11,6 +11,7 @@ class Api::Admin::PostsController < Api::Admin::BaseController
 
   def index
     posts = Post.ransack(title_cont: params[:title]).result
+    .order(created_at: :desc)
     render_paginated(posts, serializer: PostSerializer)
   end
 

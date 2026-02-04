@@ -19,10 +19,20 @@ Rails.application.routes.draw do
           post :upload_data
         end
       end
+      resources :top_stocks, only: :index do
+        collection do
+          post :upload_data
+        end
+      end
     end
 
     namespace :v1 do
       resources :posts, only: %i[index show]
+      resources :top_stocks, only: :index do
+        collection do
+          get :stock_insights
+        end
+      end
       resources :refresh_tokens, only: :create
       resources :users, only: %i[create update] do
         collection do
