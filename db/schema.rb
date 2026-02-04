@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_01_120100) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_01_122000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -119,6 +119,33 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_120100) do
     t.integer "sub_type", default: 0, null: false
     t.date "date_post"
     t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
+  create_table "setting_stock_insights", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.date "date"
+    t.integer "advancing"
+    t.integer "declining"
+    t.decimal "pct_above_ma50", precision: 10, scale: 4
+    t.decimal "pct_above_ma100", precision: 10, scale: 4
+    t.decimal "pct_above_ma200", precision: 10, scale: 4
+    t.decimal "vnindex_close", precision: 12, scale: 2
+    t.decimal "vnindex_ma200", precision: 12, scale: 2
+    t.decimal "index_pct", precision: 12, scale: 2
+    t.string "signal_ma200"
+    t.string "signal_breadth"
+    t.string "signal_ma50"
+    t.string "market_regime"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "top_stocks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "rank"
+    t.string "symbol"
+    t.decimal "rs_value", precision: 10, scale: 2
+    t.decimal "vol_20d", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "user_quotas", primary_key: "user_id", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

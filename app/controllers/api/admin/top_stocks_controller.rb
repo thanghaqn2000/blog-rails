@@ -1,9 +1,7 @@
-class Api::Admin::ChartsController < Api::Admin::BaseController
-  skip_before_action :authorize_request!, only: [:index]
-
+class Api::Admin::TopStocksController < Api::Admin::BaseController
   def upload_data
-    result = Charts::UploadDataService.new(params[:data]).call
-    
+    result = TopStocks::UploadDataService.new(params[:data]).call
+
     if result[:success]
       render_success(result[:message], result[:total_records])
     else
@@ -14,8 +12,9 @@ class Api::Admin::ChartsController < Api::Admin::BaseController
   end
 
   def index
-    charts = Chart.all
+    top_stocks = TopStock.all
 
-    render_paginated(charts, serializer: ChartSerializer)
+    render_paginated(top_stocks, serializer: TopStockSerializer)
   end
 end
+

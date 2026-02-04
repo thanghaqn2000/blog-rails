@@ -1,0 +1,3 @@
+class SettingStockInsight < ApplicationRecord
+end
+

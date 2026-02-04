@@ -1,0 +1,3 @@
+class TopStock < ApplicationRecord
+end
+
