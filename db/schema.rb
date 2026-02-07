@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_01_123000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_01_124000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -59,6 +59,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_123000) do
     t.index ["last_message_at"], name: "index_conversations_on_last_message_at"
     t.index ["openai_thread_id"], name: "index_conversations_on_openai_thread_id"
     t.index ["status"], name: "index_conversations_on_status"
+    t.index ["user_id", "created_at"], name: "index_conversations_on_user_id_and_created_at", order: { created_at: :desc }
     t.index ["user_id"], name: "index_conversations_on_user_id"
   end
 
@@ -83,6 +84,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_123000) do
     t.integer "token_usage", default: 0
     t.datetime "created_at", null: false
     t.integer "status", default: 0, null: false
+    t.index ["conversation_id", "created_at"], name: "index_messages_on_conversation_id_and_created_at"
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["openai_message_id"], name: "index_messages_on_openai_message_id"
     t.index ["role"], name: "index_messages_on_role"

@@ -1,5 +1,7 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :name, :email, :phone_number, :is_admin, :require_phone_number, :avatar_url, :is_vip
+  attributes :id, :name, :email, :phone_number, :is_admin, :require_phone_number, :avatar_url, :is_vip, :role
+
+  has_one :user_quota, serializer: UserQuotaSerializer
 
   def is_admin
     object.admin?
