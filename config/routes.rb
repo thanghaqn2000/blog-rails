@@ -8,12 +8,19 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :admin do
       resources :refresh_tokens, only: :create
+      resources :users do
+        member do
+          post :reset_password
+        end
+      end
       resources :posts, only: %i[index create destroy update show] do
         collection do
           get :categories
           post :presign
         end
       end
+      get 'users/:user_id/conversations', to: 'users#conversations'
+      get 'conversations/:conversation_id/messages', to: 'users#messages'
       resources :charts, only: :index do
         collection do
           post :upload_data

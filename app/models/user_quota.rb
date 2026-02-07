@@ -35,4 +35,12 @@ class UserQuota < ApplicationRecord
   def reset_usage!
     update!(used_today: 0)
   end
+
+  # Điều chỉnh quota: +n = tăng n, -n = giảm n. Giới hạn: daily_limit >= used_today và >= 0.
+  def apply_adjustment!(delta)
+    new_limit = daily_limit + delta.to_i
+    new_limit = [new_limit, used_today].max # không thấp hơn số đã dùng
+    new_limit = [new_limit, 0].max
+    update!(daily_limit: new_limit)
+  end
 end
