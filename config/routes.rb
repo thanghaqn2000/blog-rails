@@ -19,6 +19,11 @@ Rails.application.routes.draw do
           post :presign
         end
       end
+      resources :slides, only: %i[index create update destroy] do
+        collection do
+          patch :reorder
+        end
+      end
       get 'users/:user_id/conversations', to: 'users#conversations'
       get 'conversations/:conversation_id/messages', to: 'users#messages'
       resources :charts, only: :index do
@@ -35,6 +40,7 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       resources :posts, only: %i[index show]
+      resources :slides, only: :index
       resources :top_stocks, only: :index do
         collection do
           get :stock_insights
