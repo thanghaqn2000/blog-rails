@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   before_action :authorize_request!
   before_action :configure_permitted_parameters, if: :devise_controller?
   rescue_from Api::Error, with: :handle_api_error
+  rescue_from JWT::ExpiredSignature, with: :handle_expired_token
 
   private
   def authorize_request!
@@ -22,6 +23,10 @@ class ApplicationController < ActionController::Base
   def handle_api_error exception
     error_hash = exception.to_hash
     render json: error_hash, status: error_hash[:status]
+  end
+
+  def handle_expired_token(_exception)
+    render json: { error: "Token đã hết hạn" }, status: :unauthorized
   end
 
   def response_api body, status, code: nil
