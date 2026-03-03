@@ -12,24 +12,33 @@ class Api::V1::SessionsController < Devise::SessionsController
       return
     end
 
-    refresh_token = Api::GenerateRefreshTokenService.new(user).perform
+    service = Api::GenerateRefreshTokenService.new(user, request: request)
+    refresh_token = service.perform
     cookies.signed[:refresh_token] = {
       value: refresh_token,
       **COOKIE_OPTIONS
     }
     args = { resource: user, refresh_token: refresh_token }
-    render json: Api::GenerateAccessTokenService.new(args).perform
+    response_data = Api::GenerateAccessTokenService.new(args).perform
+    response_data[:device_limit_exceeded] = service.device_limit_exceeded?
+    render json: response_data
   end
 
   def destroy
-    # Tìm và xóa refresh_token của user
-    User.where(refresh_token: cookies.signed[:refresh_token])
-        .update_all(refresh_token: nil)
-    
-    # Xóa cookie
+    raw_token = cookies.signed[:refresh_token]
+
+    if raw_token.present?
+      # Revoke token cụ thể trong bảng mới
+      token_record = RefreshToken.find_active_by_raw_token(raw_token)
+      token_record&.revoke!
+
+      # Backward compatible: clear cột cũ nếu match
+      User.where(refresh_token: raw_token).update_all(refresh_token: nil)
+    end
+
     cookies.delete(:refresh_token, **cookie_delete_options)
-    
-    render json: { 
+
+    render json: {
       message: "Logged out successfully",
       clear_access_token: true
     }, status: :ok

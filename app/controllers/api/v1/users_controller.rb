@@ -99,13 +99,13 @@ class Api::V1::UsersController < Api::V1::BaseController
   end
 
   def generate_auth_response(user)
-    resource = { resource: user}
-    response_data = Api::GenerateAccessTokenService.new(resource).perform
-    refresh_token = Api::GenerateRefreshTokenService.new(user).perform
+    refresh_token = Api::GenerateRefreshTokenService.new(user, request: request).perform
     cookies.signed[:refresh_token] = {
       value: refresh_token,
       **COOKIE_OPTIONS
     }
+    resource = { resource: user, refresh_token: refresh_token }
+    response_data = Api::GenerateAccessTokenService.new(resource).perform
     response_api(response_data, :ok)
   end
 

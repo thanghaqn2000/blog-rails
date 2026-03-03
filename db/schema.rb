@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_01_132000) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_01_140000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -123,6 +123,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_132000) do
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
+  create_table "refresh_tokens", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "revoked_at"
+    t.string "user_agent"
+    t.string "ip_address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token_digest"], name: "index_refresh_tokens_on_token_digest", unique: true
+    t.index ["user_id", "revoked_at"], name: "index_refresh_tokens_on_user_id_and_revoked_at"
+    t.index ["user_id"], name: "index_refresh_tokens_on_user_id"
+  end
+
   create_table "setting_stock_insights", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "date"
     t.integer "advancing"
@@ -194,5 +208,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_132000) do
   add_foreign_key "messages", "conversations"
   add_foreign_key "notifications", "users"
   add_foreign_key "posts", "users"
+  add_foreign_key "refresh_tokens", "users"
   add_foreign_key "user_quotas", "users"
 end

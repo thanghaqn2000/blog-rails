@@ -7,6 +7,7 @@ class User < ApplicationRecord
 
   has_many :posts
   has_many :conversations, dependent: :destroy
+  has_many :refresh_tokens, dependent: :destroy
   has_one :user_quota, dependent: :destroy
   accepts_nested_attributes_for :user_quota, update_only: true
 
