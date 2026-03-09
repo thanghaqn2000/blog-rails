@@ -26,12 +26,24 @@ services:
     platform: linux/x86_64
     command: bundle exec rails s -p 3000 -b "0.0.0.0"
     env_file: .env.prd
+    environment:
+      STOCK_API_URL: http://stock-api:8000
     volumes: []
     ports:
       - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
+      stock-api:
+        condition: service_started
+
+  stock-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.stock
+    platform: linux/x86_64
+    expose:
+      - "8000"
 
 volumes:
   db_data:
