@@ -17,4 +17,12 @@ class Post < ApplicationRecord
   def self.ransackable_attributes(auth_object = nil)
     %w[title content created_at updated_at category sub_type date_post]
   end
+
+  def slug
+    "#{::VietnameseTransliterate.transliterate(title).parameterize}-#{id}"
+  end
+ 
+  def self.id_from_slug(slug)
+    slug.to_s.split("-").last.to_i
+  end
 end

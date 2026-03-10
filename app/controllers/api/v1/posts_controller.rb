@@ -14,7 +14,8 @@ class Api::V1::PostsController < Api::V1::BaseController
 
   private
   def set_post
-    @post = post_scope.find_by(id: params[:id])
+    post_id = Post.id_from_slug(params[:id])
+    @post = post_scope.find_by(id: post_id) if post_id > 0
 
     response_api({ errors: "Post not found" }, :not_found) unless @post
   end
