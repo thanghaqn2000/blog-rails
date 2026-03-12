@@ -4,24 +4,23 @@ class Api::V1::StocksController < Api::V1::BaseController
   STOCK_API_TIMEOUT = 10
 
   def vcb_exchange_rate
-    date = params[:date]
-    cache_key = "vcb_exchange_rate_#{date || Date.current.to_s}"
+    data = read_market_cache(MarketDataFetchJob::REDIS_KEY_EXCHANGE_RATES)
 
-    data = fetch_cached(cache_key) do
-      query = {}
-      query[:date] = date if date.present?
-      fetch_from_stock_api("/api/exchange_rates/vcb", query)
+    if data.nil?
+      return render json: { error: "Exchange rate data not available yet" }, status: :service_unavailable
     end
 
-    render_stock_response(data)
+    render_stock_response(data["data"], fetched_at: data["fetched_at"])
   end
 
   def gold_price_btmc
-    cache_key = "gold_prices_btmc"
+    data = read_market_cache(MarketDataFetchJob::REDIS_KEY_GOLD_PRICES)
 
-    data = fetch_cached(cache_key) { fetch_from_stock_api("/api/gold_prices/btmc") }
+    if data.nil?
+      return render json: { error: "Gold price data not available yet" }, status: :service_unavailable
+    end
 
-    render_stock_response(data)
+    render_stock_response(data["data"], fetched_at: data["fetched_at"])
   end
 
   def history
@@ -63,17 +62,26 @@ class Api::V1::StocksController < Api::V1::BaseController
     data.is_a?(Hash) && data["error"]
   end
 
-  def render_stock_response(data)
+  def read_market_cache(redis_key)
+    raw = REDIS.get(redis_key)
+    return nil if raw.blank?
+
+    JSON.parse(raw)
+  rescue JSON::ParserError
+    nil
+  end
+
+  def render_stock_response(data, fetched_at: nil)
     if error_response?(data)
       render json: data, status: :service_unavailable
     elsif data.is_a?(Array)
-      render_paginated_array(data)
+      render_paginated_array(data, fetched_at: fetched_at)
     else
       render json: { data: data }
     end
   end
 
-  def render_paginated_array(array)
+  def render_paginated_array(array, fetched_at: nil)
     max_per_page = Settings.pagination.max_per_page
     per_page = [(params[:per_page] || max_per_page).to_i, max_per_page].min
     paginated = Kaminari.paginate_array(array).page(params[:page]).per(per_page)
@@ -85,6 +93,7 @@ class Api::V1::StocksController < Api::V1::BaseController
       total_pages: paginated.total_pages,
       total_count: paginated.total_count
     }
+    meta[:fetched_at] = fetched_at if fetched_at
 
     render json: { data: paginated, meta: meta }
   end

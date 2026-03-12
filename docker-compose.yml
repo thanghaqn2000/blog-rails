@@ -17,6 +17,18 @@ services:
       timeout: 10s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   backend:
     build:
       context: .
@@ -28,11 +40,38 @@ services:
     env_file: .env.prd
     environment:
       STOCK_API_URL: http://stock-api:8000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://redis:6379/1
     volumes: []
     ports:
       - "3000:3000"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      stock-api:
+        condition: service_started
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        RAILS_ENV: ${RAILS_ENV}
+    platform: linux/x86_64
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    env_file: .env.prd
+    environment:
+      STOCK_API_URL: http://stock-api:8000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       stock-api:
         condition: service_started
@@ -47,3 +86,4 @@ services:
 
 volumes:
   db_data:
+  redis_data:
