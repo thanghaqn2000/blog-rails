@@ -71,6 +71,17 @@ Rails.application.routes.draw do
         end
       end
       
+      # Stock data (vnstock)
+      resources :stocks, only: [], param: :symbol do
+        member do
+          get :history
+        end
+      end
+
+      # Gold price & exchange rate
+      get "gold_prices/btmc", to: "stocks#gold_price_btmc"
+      get "exchange_rates/vcb", to: "stocks#vcb_exchange_rate"
+
       # Quota check
       get 'quota', to: 'user_quotas#show'
     end
