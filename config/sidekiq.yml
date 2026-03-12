@@ -26,14 +26,20 @@
 # Dead job retention
 :dead_timeout_in_seconds: 180
 
-# Scheduler (if using sidekiq-scheduler)
-# :scheduler:
-#   :enabled: true
+:scheduler:
+  :enabled: true
+  :schedule:
+    market_data_fetch:
+      every: "30s"
+      class: MarketDataFetchJob
+      queue: critical
+      description: "Fetch gold prices and exchange rates from vnstock"
 
 # Development specific settings
 development:
   :concurrency: 2
   :queues:
+    - critical
     - default
     - email
 

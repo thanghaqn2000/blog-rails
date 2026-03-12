@@ -27,6 +27,7 @@ gem "aws-sdk-s3", require: false
 
 # Background Jobs
 gem "sidekiq"
+gem "sidekiq-scheduler"
 gem "redis", "~> 5.0"
 
 # OpenAI
