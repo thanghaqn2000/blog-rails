@@ -36,6 +36,7 @@ Rails.application.routes.draw do
           post :upload_data
         end
       end
+      resources :feedbacks, only: %i[index show update destroy]
     end
 
     namespace :v1 do
@@ -84,6 +85,13 @@ Rails.application.routes.draw do
 
       # Quota check
       get 'quota', to: 'user_quotas#show'
+
+      # Feedback
+      resources :feedbacks, only: :create do
+        collection do
+          post :presign
+        end
+      end
     end
   end
 end
