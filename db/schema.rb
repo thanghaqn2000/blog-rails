@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_01_140000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_12_080000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -74,6 +74,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_140000) do
     t.index ["token"], name: "index_device_tokens_on_token"
     t.index ["user_id", "device_id"], name: "index_device_tokens_on_user_id_and_device_id", unique: true
     t.index ["user_id"], name: "index_device_tokens_on_user_id"
+  end
+
+  create_table "feedbacks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "content", null: false
+    t.string "page_issue"
+    t.text "image_url"
+    t.string "image_key"
+    t.integer "status", default: 0, null: false
+    t.string "phone_number"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_feedbacks_on_user_id"
   end
 
   create_table "messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -205,6 +219,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_01_140000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "conversations", "users"
   add_foreign_key "device_tokens", "users"
+  add_foreign_key "feedbacks", "users"
   add_foreign_key "messages", "conversations"
   add_foreign_key "notifications", "users"
   add_foreign_key "posts", "users"
