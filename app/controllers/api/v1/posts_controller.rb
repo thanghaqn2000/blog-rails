@@ -23,10 +23,8 @@ class Api::V1::PostsController < Api::V1::BaseController
   def post_scope
     if current_user&.admin?
       Post.all
-    elsif current_user&.vip?
-      Post.publish.where(sub_type: %i[normal vip])
     else
-      Post.publish.normal
+      Post.publish
     end
   end
 end
