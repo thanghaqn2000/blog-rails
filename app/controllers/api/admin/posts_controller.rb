@@ -73,7 +73,19 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   end
 
   def post_params
-    params.required(:post).permit :title, :content, :category, :status, :sub_type, :date_post, :description, :image_key
+    params.required(:post).permit(
+      :title,
+      :content,
+      :category,
+      :status,
+      :sub_type,
+      :date_post,
+      :description,
+      :image_key,
+      :image_url,
+      :author_type,
+      :source
+    )
   end
 
   def set_post
