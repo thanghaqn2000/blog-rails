@@ -30,7 +30,7 @@
   :enabled: true
   :schedule:
     market_data_fetch:
-      every: "30s"
+      every: "1h"
       class: MarketDataFetchJob
       queue: critical
       description: "Fetch gold prices and exchange rates from vnstock"

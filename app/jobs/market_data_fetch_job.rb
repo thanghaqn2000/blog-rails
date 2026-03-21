@@ -1,4 +1,5 @@
 require "net/http"
+require "securerandom"
 
 class MarketDataFetchJob < ApplicationJob
   queue_as :critical
@@ -6,15 +7,23 @@ class MarketDataFetchJob < ApplicationJob
   REDIS_KEY_GOLD_PRICES   = "market:gold_prices".freeze
   REDIS_KEY_EXCHANGE_RATES = "market:exchange_rates".freeze
   LOCK_KEY = "market:fetch_lock".freeze
-  REDIS_TTL = 120 # seconds
-  LOCK_TTL = 25 # seconds — shorter than scheduler interval (30s)
+  REDIS_TTL = 3600 # seconds (1 hour)
+  LOCK_TTL = 300 # seconds (so lock doesn't expire mid-fetch)
 
   def perform
     return unless acquire_lock
 
     begin
+      gold_exists = REDIS.exists(REDIS_KEY_GOLD_PRICES) == 1
+      exchange_exists = REDIS.exists(REDIS_KEY_EXCHANGE_RATES) == 1
+
       data = fetch_market_data
-      return if data.nil?
+      if data.nil?
+        # Nếu call vnstock thất bại tạm thời (504/timeout), giữ lại dữ liệu cũ bằng cách gia hạn TTL.
+        REDIS.expire(REDIS_KEY_GOLD_PRICES, REDIS_TTL) if gold_exists
+        REDIS.expire(REDIS_KEY_EXCHANGE_RATES, REDIS_TTL) if exchange_exists
+        return
+      end
 
       now = data["fetched_at"] || Time.current.iso8601
 
@@ -22,12 +31,17 @@ class MarketDataFetchJob < ApplicationJob
         gold_payload = { data: data["gold_prices"], fetched_at: now }.to_json
         REDIS.setex(REDIS_KEY_GOLD_PRICES, REDIS_TTL, gold_payload)
         ActionCable.server.broadcast("market_data", { type: "gold_prices", data: data["gold_prices"], fetched_at: now })
+      elsif gold_exists
+        # Không có dữ liệu mới => gia hạn TTL để tránh cache hết hạn dẫn tới data nil
+        REDIS.expire(REDIS_KEY_GOLD_PRICES, REDIS_TTL)
       end
 
       if data["exchange_rates"].present?
         exchange_payload = { data: data["exchange_rates"], fetched_at: now }.to_json
         REDIS.setex(REDIS_KEY_EXCHANGE_RATES, REDIS_TTL, exchange_payload)
         ActionCable.server.broadcast("market_data", { type: "exchange_rates", data: data["exchange_rates"], fetched_at: now })
+      elsif exchange_exists
+        REDIS.expire(REDIS_KEY_EXCHANGE_RATES, REDIS_TTL)
       end
 
       log_errors(data["errors"]) if data["errors"].present?
