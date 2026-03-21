@@ -9,8 +9,8 @@ class Api::V1::PostsController < Api::V1::BaseController
   end
 
   def show
-    full_content = current_user&.admin? || current_user&.vip?
-    content_mode = full_content ? :full : :single_sentence
+    hide_vip_content = @post.vip? && (current_user.nil? || current_user.user?)
+    content_mode = hide_vip_content ? :single_sentence : :full
     render json: { data: PostSerializer.new(@post, { content_mode: content_mode }).as_json }
   end
 
