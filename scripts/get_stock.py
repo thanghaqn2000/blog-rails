@@ -60,8 +60,10 @@ def _parse_exchange_rates(df):
             else:
                 record[col] = str(val)
         records.append(record)
-    return records
 
+    priority_order = {"USD": 0, "EUR": 1}
+    records.sort(key=lambda r: (priority_order.get(str(r.get("currency_code", "")).upper(), 99)))
+    return records
 
 @app.get("/api/stocks/{symbol}/history")
 def stock_history(

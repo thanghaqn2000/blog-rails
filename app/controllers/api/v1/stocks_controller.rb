@@ -7,7 +7,10 @@ class Api::V1::StocksController < Api::V1::BaseController
     data = read_market_cache(MarketDataFetchJob::REDIS_KEY_EXCHANGE_RATES)
 
     if data.nil?
-      return render json: { error: "Exchange rate data not available yet" }, status: :service_unavailable
+      Rails.logger.warn("[MarketCache] Missing Redis key=#{MarketDataFetchJob::REDIS_KEY_EXCHANGE_RATES}, fallback to Python API")
+      data = fetch_from_stock_api("/api/exchange_rates/vcb", { date: params[:date].presence })
+      backfill_market_cache(MarketDataFetchJob::REDIS_KEY_EXCHANGE_RATES, data)
+      return render_stock_response(data)
     end
 
     render_stock_response(data["data"], fetched_at: data["fetched_at"])
@@ -17,7 +20,10 @@ class Api::V1::StocksController < Api::V1::BaseController
     data = read_market_cache(MarketDataFetchJob::REDIS_KEY_GOLD_PRICES)
 
     if data.nil?
-      return render json: { error: "Gold price data not available yet" }, status: :service_unavailable
+      Rails.logger.warn("[MarketCache] Missing Redis key=#{MarketDataFetchJob::REDIS_KEY_GOLD_PRICES}, fallback to Python API")
+      data = fetch_from_stock_api("/api/gold_prices/btmc")
+      backfill_market_cache(MarketDataFetchJob::REDIS_KEY_GOLD_PRICES, data)
+      return render_stock_response(data)
     end
 
     render_stock_response(data["data"], fetched_at: data["fetched_at"])
@@ -66,9 +72,24 @@ class Api::V1::StocksController < Api::V1::BaseController
     raw = REDIS.get(redis_key)
     return nil if raw.blank?
 
+    Rails.logger.debug("[MarketCache] Redis hit key=#{redis_key} len=#{raw.bytesize}")
     JSON.parse(raw)
-  rescue JSON::ParserError
+  rescue Redis::CannotConnectError => e
+    Rails.logger.error("[MarketCache] Redis connect error key=#{redis_key} message=#{e.message}")
     nil
+  rescue JSON::ParserError => e
+    Rails.logger.error("[MarketCache] JSON parse error key=#{redis_key} message=#{e.message}")
+    nil
+  end
+
+  def backfill_market_cache(redis_key, data)
+    return if data.nil? || error_response?(data) || !data.is_a?(Array) || data.empty?
+
+    payload = { data: data, fetched_at: Time.current.iso8601 }.to_json
+    REDIS.setex(redis_key, MarketDataFetchJob::REDIS_TTL, payload)
+    Rails.logger.info("[MarketCache] Backfilled key=#{redis_key} size=#{data.size}")
+  rescue Redis::CannotConnectError => e
+    Rails.logger.error("[MarketCache] Backfill Redis connect error key=#{redis_key} message=#{e.message}")
   end
 
   def render_stock_response(data, fetched_at: nil)
