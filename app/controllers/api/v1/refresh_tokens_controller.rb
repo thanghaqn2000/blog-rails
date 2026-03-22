@@ -20,12 +20,32 @@ class Api::V1::RefreshTokensController < Api::V1::BaseController
     else
       # Fallback: tìm trong cột cũ (backward compatible)
       decoded_token = JsonWebToken.decode(raw_token)
-      raise Api::ParamInvalid, "Invalid refresh token" if decoded_token[:type] != 'refresh'
+      if decoded_token[:type] != "refresh"
+        clear_stale_refresh_cookie
+        raise Api::ParamInvalid, "Invalid refresh token"
+      end
       @user = User.find_by(refresh_token: raw_token)
     end
 
-    raise Api::Unauthorized, "Phiên đăng nhập đã hết hạn hoặc bị thu hồi" if @user.blank?
+    if @user.blank?
+      clear_stale_refresh_cookie
+      raise Api::Unauthorized, "Phiên đăng nhập đã hết hạn hoặc bị thu hồi"
+    end
   rescue JWT::DecodeError, JWT::ExpiredSignature
+    clear_stale_refresh_cookie
     raise Api::Unauthorized, "Refresh token không hợp lệ hoặc đã hết hạn"
+  end
+
+  def clear_stale_refresh_cookie
+    cookies.delete(:refresh_token, **cookie_delete_options)
+  end
+
+  def cookie_delete_options
+    {
+      domain: :all,
+      path: "/",
+      secure: Rails.env.production? || ENV["FORCE_HTTPS"] == "true",
+      same_site: (Rails.env.production? || ENV["FORCE_HTTPS"] == "true") ? :none : :lax
+    }
   end
 end
