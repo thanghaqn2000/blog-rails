@@ -16,7 +16,7 @@ class Post < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[title content created_at updated_at category sub_type date_post author_type source]
+    %w[title content created_at updated_at category status sub_type date_post author_type source]
   end
 
   def slug

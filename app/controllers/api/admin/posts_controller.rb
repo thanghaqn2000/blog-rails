@@ -10,9 +10,11 @@ class Api::Admin::PostsController < Api::Admin::BaseController
   end
 
   def index
-    posts = Post.ransack(title_cont: params[:title]).result
-    .order(created_at: :desc)
-    render_paginated(posts, serializer: PostSerializer)
+    render_posts_index(Post.admin)
+  end
+
+  def auto_posts
+    render_posts_index(Post.system)
   end
 
   def create
@@ -68,6 +70,12 @@ class Api::Admin::PostsController < Api::Admin::BaseController
 
   private
 
+  def render_posts_index(scope)
+    posts = scope.ransack(admin_posts_index_q).result
+      .order(created_at: :desc)
+    render_paginated(posts, serializer: PostSerializer)
+  end
+
   def s3_storage_service
     @s3_storage_service ||= S3StorageService.new
   end
@@ -92,5 +100,27 @@ class Api::Admin::PostsController < Api::Admin::BaseController
     @post = Post.find_by(id: params[:id])
 
     return response_api({ errors: "Post not found" }, :not_found) unless @post
+  end
+
+  # Ransack: có thể kết hợp nhiều query param cùng lúc (title + category + status + ...).
+  # date_post_from / date_post_to: lọc date_post theo khoảng (date hoặc datetime string).
+  def admin_posts_index_q
+    q = {}
+    q[:title_cont] = params[:title] if params[:title].present?
+    q[:with_category_name] = params[:category] if params[:category].present?
+
+    if params[:status].present?
+      v = Post.statuses[params[:status].to_s]
+      q[:status_eq] = v unless v.nil?
+    end
+
+    if params[:sub_type].present?
+      v = Post.sub_types[params[:sub_type].to_s]
+      q[:sub_type_eq] = v unless v.nil?
+    end
+
+    q[:date_post_gteq] = params[:date_post_from] if params[:date_post_from].present?
+    q[:date_post_lteq] = params[:date_post_to] if params[:date_post_to].present?
+    q
   end
 end

@@ -17,6 +17,7 @@ Rails.application.routes.draw do
         collection do
           get :categories
           post :presign
+          get :auto_posts, action: :auto_posts
         end
       end
       resources :slides, only: %i[index create update destroy] do
