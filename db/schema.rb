@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_19_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_29_120000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -61,6 +61,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_19_000000) do
     t.index ["status"], name: "index_conversations_on_status"
     t.index ["user_id", "created_at"], name: "index_conversations_on_user_id_and_created_at", order: { created_at: :desc }
     t.index ["user_id"], name: "index_conversations_on_user_id"
+  end
+
+  create_table "daily_stats", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.date "stat_date", null: false
+    t.bigint "homepage_views", default: 0, null: false
+    t.bigint "top_stocks_views", default: 0, null: false
+    t.bigint "new_users_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stat_date"], name: "index_daily_stats_on_stat_date", unique: true
   end
 
   create_table "device_tokens", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -213,6 +223,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_19_000000) do
     t.datetime "updated_at", null: false
     t.string "avatar_url"
     t.string "fcm_token"
+    t.datetime "last_active_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["refresh_token"], name: "index_users_on_refresh_token", unique: true
   end
