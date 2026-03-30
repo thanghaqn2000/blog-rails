@@ -13,6 +13,7 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :user_quota, update_only: true
 
   after_create :create_default_quota
+  after_commit :bump_daily_new_user_stat, on: :create
 
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
@@ -56,5 +57,11 @@ class User < ApplicationRecord
   def create_default_quota
     # Tạo quota với daily_limit mặc định là 5 messages (tổng cộng)
     create_user_quota(daily_limit: 5, used_today: 0) unless user_quota.present?
+  end
+
+  def bump_daily_new_user_stat
+    DailyStat.bump_new_user!
+  rescue StandardError => e
+    Rails.logger.error("[User#bump_daily_new_user_stat] #{e.class}: #{e.message}")
   end
 end

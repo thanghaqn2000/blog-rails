@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
   namespace :api do
     namespace :admin do
+      get "dashboard_stats", to: "dashboard_stats#show"
       resources :refresh_tokens, only: :create
       resources :users do
         member do
@@ -41,6 +42,7 @@ Rails.application.routes.draw do
     end
 
     namespace :v1 do
+      post "track/view", to: "track/views#create"
       resources :posts, only: %i[index show]
       resources :slides, only: :index
       resources :top_stocks, only: :index do

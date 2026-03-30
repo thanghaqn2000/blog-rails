@@ -3,11 +3,20 @@ class ApplicationController < ActionController::Base
 
   skip_forgery_protection
   before_action :authorize_request!
+  after_action :touch_last_active_at_if_eligible
   before_action :configure_permitted_parameters, if: :devise_controller?
   rescue_from Api::Error, with: :handle_api_error
   rescue_from JWT::ExpiredSignature, with: :handle_expired_token
 
   private
+
+  def touch_last_active_at_if_eligible
+    actor = @current_user || @current_admin || @admin
+    return if actor.blank?
+
+    UserLastActiveSync.call(actor.id)
+  end
+
   def authorize_request!
     authorization_header = request.headers[Settings.authorization.header]
     raise Api::Unauthorized, "Account or password is invalid" unless authorization_header
