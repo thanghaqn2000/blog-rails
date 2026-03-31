@@ -43,6 +43,10 @@ Rails.application.routes.draw do
 
     namespace :v1 do
       post "track/view", to: "track/views#create"
+      namespace :auth do
+        post "forgot-password", to: "passwords#forgot_password"
+        post "reset-password", to: "passwords#reset_password"
+      end
       resources :posts, only: %i[index show]
       resources :slides, only: :index
       resources :top_stocks, only: :index do
